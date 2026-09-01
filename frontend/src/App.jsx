@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./App.css";
 
+const API_URL = "https://resumeiq-backend-jdni.onrender.com";
+
 function App() {
   const [activePage, setActivePage] = useState("Dashboard");
 
@@ -13,27 +15,27 @@ function App() {
   ];
 
   const renderPage = () => {
-    if (activePage === "Create Resume") {
-      return <CreateResume />;
-    }
+    switch (activePage) {
+      case "Create Resume":
+        return <CreateResume />;
 
-    if (activePage === "Analyze Resume") {
-      return <AnalyzeResume />;
-    }
+      case "Analyze Resume":
+        return <AnalyzeResume />;
 
-    if (activePage === "Job Match") {
-      return <JobMatch />;
-    }
+      case "Job Match":
+        return <JobMatch />;
 
-    if (activePage === "My Resumes") {
-      return <MyResumes />;
-    }
+      case "My Resumes":
+        return <MyResumes />;
 
-    return <Dashboard setActivePage={setActivePage} />;
+      default:
+        return <Dashboard setActivePage={setActivePage} />;
+    }
   };
 
   return (
     <div className="app">
+      {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-logo">R</div>
@@ -90,11 +92,12 @@ function App() {
         </div>
       </aside>
 
+      {/* MAIN */}
       <main className="main-content">
         <header className="topbar">
-          <div>
-            <p className="breadcrumb">Workspace / {activePage}</p>
-          </div>
+          <p className="breadcrumb">
+            Workspace / {activePage}
+          </p>
 
           <div className="top-actions">
             <button className="notification">♢</button>
@@ -106,15 +109,17 @@ function App() {
           </div>
         </header>
 
-        <section className="page-content">{renderPage()}</section>
+        <section className="page-content">
+          {renderPage()}
+        </section>
       </main>
     </div>
   );
 }
 
-/* ================================
+/* =====================================================
    DASHBOARD
-================================ */
+===================================================== */
 
 function Dashboard({ setActivePage }) {
   return (
@@ -273,50 +278,29 @@ function Dashboard({ setActivePage }) {
             <span className="sparkle">✦</span>
           </div>
 
-          <div className="tip">
-            <div className="tip-icon">✓</div>
+          <Tip
+            title="Use measurable achievements"
+            text="Add numbers such as performance improvements, users served or projects completed."
+          />
 
-            <div>
-              <strong>Use measurable achievements</strong>
-              <p>
-                Add numbers such as performance improvements, users served or
-                projects completed.
-              </p>
-            </div>
-          </div>
+          <Tip
+            title="Keep your skills relevant"
+            text="Highlight technologies that appear in your target job description."
+          />
 
-          <div className="tip">
-            <div className="tip-icon">✓</div>
-
-            <div>
-              <strong>Keep your skills relevant</strong>
-              <p>
-                Highlight technologies that appear in your target job
-                description.
-              </p>
-            </div>
-          </div>
-
-          <div className="tip">
-            <div className="tip-icon">✓</div>
-
-            <div>
-              <strong>Make your summary powerful</strong>
-              <p>
-                Explain your strengths and the value you can bring to the
-                company.
-              </p>
-            </div>
-          </div>
+          <Tip
+            title="Make your summary powerful"
+            text="Explain your strengths and the value you can bring to the company."
+          />
         </div>
       </section>
     </>
   );
 }
 
-/* ================================
+/* =====================================================
    STAT CARD
-================================ */
+===================================================== */
 
 function StatCard({ icon, title, value, description, type }) {
   return (
@@ -334,14 +318,23 @@ function StatCard({ icon, title, value, description, type }) {
   );
 }
 
-/* ================================
+/* =====================================================
    FEATURE CARD
-================================ */
+===================================================== */
 
-function FeatureCard({ icon, title, text, button, onClick, color }) {
+function FeatureCard({
+  icon,
+  title,
+  text,
+  button,
+  onClick,
+  color,
+}) {
   return (
     <div className="feature-card">
-      <div className={`feature-icon ${color}`}>{icon}</div>
+      <div className={`feature-icon ${color}`}>
+        {icon}
+      </div>
 
       <h3>{title}</h3>
 
@@ -354,12 +347,54 @@ function FeatureCard({ icon, title, text, button, onClick, color }) {
   );
 }
 
-/* ================================
+/* =====================================================
+   TIP
+===================================================== */
+
+function Tip({ title, text }) {
+  return (
+    <div className="tip">
+      <div className="tip-icon">✓</div>
+
+      <div>
+        <strong>{title}</strong>
+        <p>{text}</p>
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================
    CREATE RESUME
-================================ */
+===================================================== */
 
 function CreateResume() {
   const [step, setStep] = useState(1);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    title: "",
+    summary: "",
+    jobTitle: "",
+    company: "",
+    startDate: "",
+    endDate: "",
+    experience: "",
+    skills: "",
+    projects: "",
+    education: "",
+    targetJob: "",
+  });
+
+  const updateField = (field, value) => {
+    setFormData({
+      ...formData,
+      [field]: value,
+    });
+  };
 
   return (
     <div className="tool-page">
@@ -380,6 +415,7 @@ function CreateResume() {
 
       <div className="creator-layout">
         <div className="form-panel">
+
           <div className="stepper">
             <Step number="1" text="Personal" active={step === 1} />
             <Step number="2" text="Experience" active={step === 2} />
@@ -390,29 +426,66 @@ function CreateResume() {
           {step === 1 && (
             <div className="form-content">
               <h2>Let's start with the basics</h2>
+
               <p className="form-subtitle">
                 Enter your basic information.
               </p>
 
               <div className="form-grid">
-                <Input label="Full Name" placeholder="Alex Johnson" />
+                <Input
+                  label="Full Name"
+                  placeholder="Alex Johnson"
+                  value={formData.name}
+                  onChange={(e) =>
+                    updateField("name", e.target.value)
+                  }
+                />
+
                 <Input
                   label="Email"
                   placeholder="alex@example.com"
                   type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    updateField("email", e.target.value)
+                  }
                 />
-                <Input label="Phone" placeholder="+91 98765 43210" />
-                <Input label="Location" placeholder="Nagpur, Maharashtra" />
+
+                <Input
+                  label="Phone"
+                  placeholder="+91 98765 43210"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    updateField("phone", e.target.value)
+                  }
+                />
+
+                <Input
+                  label="Location"
+                  placeholder="Nagpur, Maharashtra"
+                  value={formData.location}
+                  onChange={(e) =>
+                    updateField("location", e.target.value)
+                  }
+                />
               </div>
 
               <Input
                 label="Professional Title"
                 placeholder="Computer Science Engineering Student"
+                value={formData.title}
+                onChange={(e) =>
+                  updateField("title", e.target.value)
+                }
               />
 
               <TextArea
                 label="Professional Summary"
                 placeholder="Tell recruiters about yourself, your strengths and career goals..."
+                value={formData.summary}
+                onChange={(e) =>
+                  updateField("summary", e.target.value)
+                }
               />
 
               <div className="form-actions">
@@ -429,6 +502,7 @@ function CreateResume() {
           {step === 2 && (
             <div className="form-content">
               <h2>Tell us about your experience</h2>
+
               <p className="form-subtitle">
                 Add internships, jobs or important experience.
               </p>
@@ -436,21 +510,48 @@ function CreateResume() {
               <Input
                 label="Job / Internship Title"
                 placeholder="Software Development Intern"
+                value={formData.jobTitle}
+                onChange={(e) =>
+                  updateField("jobTitle", e.target.value)
+                }
               />
 
               <Input
                 label="Company"
                 placeholder="Company Name"
+                value={formData.company}
+                onChange={(e) =>
+                  updateField("company", e.target.value)
+                }
               />
 
               <div className="form-grid">
-                <Input label="Start Date" placeholder="June 2025" />
-                <Input label="End Date" placeholder="August 2025" />
+                <Input
+                  label="Start Date"
+                  placeholder="June 2025"
+                  value={formData.startDate}
+                  onChange={(e) =>
+                    updateField("startDate", e.target.value)
+                  }
+                />
+
+                <Input
+                  label="End Date"
+                  placeholder="August 2025"
+                  value={formData.endDate}
+                  onChange={(e) =>
+                    updateField("endDate", e.target.value)
+                  }
+                />
               </div>
 
               <TextArea
                 label="What did you do?"
                 placeholder="Describe your responsibilities and achievements..."
+                value={formData.experience}
+                onChange={(e) =>
+                  updateField("experience", e.target.value)
+                }
               />
 
               <div className="form-actions">
@@ -482,21 +583,37 @@ function CreateResume() {
               <TextArea
                 label="Technical Skills"
                 placeholder="Python, Java, C++, SQL, React, HTML, CSS, Git..."
+                value={formData.skills}
+                onChange={(e) =>
+                  updateField("skills", e.target.value)
+                }
               />
 
               <TextArea
                 label="Projects"
                 placeholder="Project name — what you built, technologies used and results..."
+                value={formData.projects}
+                onChange={(e) =>
+                  updateField("projects", e.target.value)
+                }
               />
 
               <TextArea
                 label="Education"
                 placeholder="B.Tech Computer Science Engineering — ABC Institute — 2023-2027"
+                value={formData.education}
+                onChange={(e) =>
+                  updateField("education", e.target.value)
+                }
               />
 
               <Input
                 label="Target Job"
                 placeholder="Software Developer / Data Analyst / Web Developer"
+                value={formData.targetJob}
+                onChange={(e) =>
+                  updateField("targetJob", e.target.value)
+                }
               />
 
               <div className="form-actions">
@@ -521,16 +638,21 @@ function CreateResume() {
             <div className="generation-screen">
               <div className="success-icon">✓</div>
 
-              <h2>Your resume is ready!</h2>
+              <h2>Your resume information is ready!</h2>
 
               <p>
-                ResumeIQ has prepared your resume content. The AI-powered
-                generation system can now be connected to your backend.
+                Your information has been collected successfully.
+                AI resume generation can now be connected to your
+                Gemini-powered backend.
               </p>
 
               <button
                 className="primary-button"
-                onClick={() => alert("Resume generation will be connected to the AI backend next.")}
+                onClick={() =>
+                  alert(
+                    "AI Resume Generator will be connected next."
+                  )
+                }
               >
                 ✦ Generate Final Resume
               </button>
@@ -553,52 +675,73 @@ function CreateResume() {
 
           <div className="resume-paper">
             <div className="paper-header">
-              <div className="paper-avatar">A</div>
+              <div className="paper-avatar">
+                {formData.name
+                  ? formData.name.charAt(0).toUpperCase()
+                  : "A"}
+              </div>
 
               <div>
-                <h2>Alex Johnson</h2>
-                <p>Software Developer</p>
+                <h2>
+                  {formData.name || "Alex Johnson"}
+                </h2>
+
+                <p>
+                  {formData.title || "Software Developer"}
+                </p>
               </div>
             </div>
 
             <div className="paper-section">
               <h4>PROFILE</h4>
-              <div className="paper-lines">
-                <span></span>
-                <span></span>
-                <span className="short"></span>
-              </div>
+
+              <p>
+                {formData.summary ||
+                  "Your professional summary will appear here."}
+              </p>
             </div>
 
             <div className="paper-section">
               <h4>SKILLS</h4>
 
               <div className="paper-skills">
-                <i>Python</i>
-                <i>React</i>
-                <i>SQL</i>
-                <i>Git</i>
+                {formData.skills
+                  ? formData.skills
+                      .split(",")
+                      .slice(0, 6)
+                      .map((skill) => (
+                        <i key={skill}>
+                          {skill.trim()}
+                        </i>
+                      ))
+                  : (
+                    <>
+                      <i>Python</i>
+                      <i>React</i>
+                      <i>SQL</i>
+                      <i>Git</i>
+                    </>
+                  )}
               </div>
             </div>
 
             <div className="paper-section">
               <h4>EXPERIENCE</h4>
 
-              <div className="paper-lines">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
+              <p>
+                {formData.jobTitle
+                  ? `${formData.jobTitle} at ${formData.company}`
+                  : "Your experience will appear here."}
+              </p>
             </div>
 
             <div className="paper-section">
               <h4>PROJECTS</h4>
 
-              <div className="paper-lines">
-                <span></span>
-                <span></span>
-                <span className="short"></span>
-              </div>
+              <p>
+                {formData.projects ||
+                  "Your projects will appear here."}
+              </p>
             </div>
           </div>
         </div>
@@ -607,12 +750,63 @@ function CreateResume() {
   );
 }
 
-/* ================================
+/* =====================================================
    ANALYZE RESUME
-================================ */
+===================================================== */
 
 function AnalyzeResume() {
   const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
+
+  const analyzeResume = async () => {
+    if (!file) {
+      setError("Please select a resume first.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setResult(null);
+
+    try {
+      const formData = new FormData();
+
+      formData.append("file", file);
+
+      const response = await fetch(
+        `${API_URL}/upload-resume`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+
+        throw new Error(
+          errorText || "Resume analysis failed."
+        );
+      }
+
+      const data = await response.json();
+
+      console.log("Backend response:", data);
+
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.message ||
+          "Unable to connect to the ResumeIQ backend."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="tool-page">
@@ -623,29 +817,46 @@ function AnalyzeResume() {
           <h1>Understand your resume</h1>
 
           <p>
-            Upload your resume and get an ATS score, skill analysis and
-            actionable suggestions.
+            Upload your resume and get an ATS score, skill analysis
+            and actionable suggestions.
           </p>
+        </div>
+
+        <div className="ai-badge">
+          ✦ AI Analysis
         </div>
       </div>
 
       <div className="upload-container">
         <div
           className="upload-box"
-          onClick={() => document.getElementById("resume-upload").click()}
+          onClick={() =>
+            document
+              .getElementById("resume-upload")
+              .click()
+          }
         >
           <input
             id="resume-upload"
             type="file"
             accept=".pdf,.doc,.docx"
             hidden
-            onChange={(e) => setFile(e.target.files[0])}
+            onChange={(e) => {
+              const selectedFile =
+                e.target.files?.[0];
+
+              setFile(selectedFile);
+              setResult(null);
+              setError("");
+            }}
           />
 
           <div className="upload-icon">↑</div>
 
           <h2>
-            {file ? file.name : "Drop your resume here"}
+            {file
+              ? file.name
+              : "Drop your resume here"}
           </h2>
 
           <p>
@@ -662,94 +873,350 @@ function AnalyzeResume() {
         {file && (
           <button
             className="primary-button analyze-button"
-            onClick={() =>
-              alert("Connect this button to your FastAPI /upload-resume endpoint.")
-            }
+            onClick={analyzeResume}
+            disabled={loading}
           >
-            ✦ Analyze My Resume
+            {loading
+              ? "⏳ Analyzing..."
+              : "✦ Analyze My Resume"}
           </button>
+        )}
+
+        {error && (
+          <div className="error-message">
+            ❌ {error}
+          </div>
         )}
       </div>
 
+      {/* RESULTS */}
+
       <div className="analysis-preview">
+
         <div className="analysis-card">
-          <div className="analysis-card-icon purple">◎</div>
+          <div className="analysis-card-icon purple">
+            ◎
+          </div>
+
           <h3>ATS Score</h3>
-          <strong>--</strong>
-          <p>Upload your resume to calculate</p>
+
+          <strong>
+            {result?.ats_score ??
+              result?.score ??
+              "--"}
+            {result &&
+            (result.ats_score !== undefined ||
+              result.score !== undefined)
+              ? "%"
+              : ""}
+          </strong>
+
+          <p>
+            {result
+              ? "Resume analysis complete"
+              : "Upload your resume to calculate"}
+          </p>
         </div>
 
         <div className="analysis-card">
-          <div className="analysis-card-icon blue">✦</div>
+          <div className="analysis-card-icon blue">
+            ✦
+          </div>
+
           <h3>Skills</h3>
-          <strong>--</strong>
-          <p>Skills will appear here</p>
+
+          <strong>
+            {result?.skills
+              ? Array.isArray(result.skills)
+                ? result.skills.length
+                : "--"
+              : "--"}
+          </strong>
+
+          <p>
+            {result?.skills
+              ? "Skills identified"
+              : "Skills will appear here"}
+          </p>
         </div>
 
         <div className="analysis-card">
-          <div className="analysis-card-icon green">✓</div>
+          <div className="analysis-card-icon green">
+            ✓
+          </div>
+
           <h3>Suggestions</h3>
-          <strong>--</strong>
-          <p>AI recommendations</p>
+
+          <strong>
+            {result?.suggestions
+              ? Array.isArray(result.suggestions)
+                ? result.suggestions.length
+                : "✓"
+              : "--"}
+          </strong>
+
+          <p>
+            {result
+              ? "AI recommendations"
+              : "AI recommendations"}
+          </p>
         </div>
       </div>
+
+      {/* DETAILED RESULT */}
+
+      {result && (
+        <div className="result-section">
+
+          <div className="result-card">
+            <p className="eyebrow">
+              AI ANALYSIS RESULT
+            </p>
+
+            <h2>
+              Resume Analysis
+            </h2>
+
+            {result.summary && (
+              <div className="result-block">
+                <h3>Summary</h3>
+                <p>{result.summary}</p>
+              </div>
+            )}
+
+            {result.skills && (
+              <div className="result-block">
+                <h3>Skills Found</h3>
+
+                <div className="result-tags">
+                  {Array.isArray(result.skills)
+                    ? result.skills.map(
+                        (skill, index) => (
+                          <span key={index}>
+                            {typeof skill ===
+                            "string"
+                              ? skill
+                              : skill.name ||
+                                JSON.stringify(skill)}
+                          </span>
+                        )
+                      )
+                    : (
+                      <p>
+                        {JSON.stringify(
+                          result.skills
+                        )}
+                      </p>
+                    )}
+                </div>
+              </div>
+            )}
+
+            {result.suggestions && (
+              <div className="result-block">
+                <h3>Suggestions</h3>
+
+                {Array.isArray(
+                  result.suggestions
+                ) ? (
+                  <ul>
+                    {result.suggestions.map(
+                      (suggestion, index) => (
+                        <li key={index}>
+                          {typeof suggestion ===
+                          "string"
+                            ? suggestion
+                            : JSON.stringify(
+                                suggestion
+                              )}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                ) : (
+                  <p>
+                    {JSON.stringify(
+                      result.suggestions
+                    )}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Show complete response for fields
+                that your backend may return */}
+            <details>
+              <summary>
+                View complete AI response
+              </summary>
+
+              <pre>
+                {JSON.stringify(
+                  result,
+                  null,
+                  2
+                )}
+              </pre>
+            </details>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-/* ================================
+/* =====================================================
    JOB MATCH
-================================ */
+===================================================== */
 
 function JobMatch() {
+  const [jobDescription, setJobDescription] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [result, setResult] =
+    useState(null);
+
+  const [error, setError] =
+    useState("");
+
+  const analyzeJob = async () => {
+    if (!jobDescription.trim()) {
+      setError(
+        "Please enter a job description."
+      );
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      /*
+       * IMPORTANT:
+       * Change this endpoint if your FastAPI
+       * backend uses another Job Match endpoint.
+       */
+
+      const response = await fetch(
+        `${API_URL}/job-match`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            job_description: jobDescription,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Job match request failed."
+        );
+      }
+
+      const data = await response.json();
+
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.message ||
+          "Unable to analyze job description."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="tool-page">
       <div className="tool-header">
         <div>
-          <p className="eyebrow">JOB MATCH</p>
+          <p className="eyebrow">
+            JOB MATCH
+          </p>
 
-          <h1>Match your resume with a job</h1>
+          <h1>
+            Match your resume with a job
+          </h1>
 
           <p>
-            Paste a job description and ResumeIQ will compare it with your
-            resume.
+            Paste a job description and ResumeIQ
+            will compare it with your resume.
           </p>
         </div>
 
-        <div className="ai-badge">⚡ Smart Matching</div>
+        <div className="ai-badge">
+          ⚡ Smart Matching
+        </div>
       </div>
 
       <div className="job-match-grid">
+
         <div className="job-input-card">
-          <label>Job Description</label>
+          <label>
+            Job Description
+          </label>
 
           <textarea
-            placeholder="Paste the job description here...
+            value={jobDescription}
+            onChange={(e) =>
+              setJobDescription(
+                e.target.value
+              )
+            }
+            placeholder={`Paste the job description here...
 
 Example:
-We are looking for a Software Developer with experience in Python, React, SQL, Git and AWS..."
+We are looking for a Software Developer with experience in Python, React, SQL, Git and AWS...`}
           ></textarea>
 
           <button
             className="primary-button"
-            onClick={() =>
-              alert("Connect this button to your Job Match FastAPI endpoint.")
-            }
+            onClick={analyzeJob}
+            disabled={loading}
           >
-            ⚡ Analyze Job Match
+            {loading
+              ? "⏳ Analyzing..."
+              : "⚡ Analyze Job Match"}
           </button>
+
+          {error && (
+            <div className="error-message">
+              ❌ {error}
+            </div>
+          )}
         </div>
 
         <div className="match-result-card">
-          <p className="eyebrow">MATCH RESULT</p>
+          <p className="eyebrow">
+            MATCH RESULT
+          </p>
 
-          <div className="big-score">--%</div>
+          <div className="big-score">
+            {result?.match_score ??
+              result?.score ??
+              "--"}
+            {result ? "%" : ""}
+          </div>
 
-          <h2>Upload a resume first</h2>
+          <h2>
+            {result
+              ? "Analysis complete"
+              : "Upload a resume first"}
+          </h2>
 
           <p>
-            Your matching skills, missing skills and recommendations will
-            appear here.
+            {result
+              ? "Your job match results are ready."
+              : "Your matching skills, missing skills and recommendations will appear here."}
           </p>
 
           <div className="match-placeholder">
@@ -761,15 +1228,31 @@ We are looking for a Software Developer with experience in Python, React, SQL, G
             <span>!</span>
             Missing skills
           </div>
+
+          {result && (
+            <details>
+              <summary>
+                View complete result
+              </summary>
+
+              <pre>
+                {JSON.stringify(
+                  result,
+                  null,
+                  2
+                )}
+              </pre>
+            </details>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-/* ================================
+/* =====================================================
    MY RESUMES
-================================ */
+===================================================== */
 
 function MyResumes() {
   const resumes = [
@@ -778,11 +1261,13 @@ function MyResumes() {
       date: "Created recently",
       score: "87%",
     },
+
     {
       name: "Python Developer Resume",
       date: "Created recently",
       score: "78%",
     },
+
     {
       name: "General Resume",
       date: "Created recently",
@@ -794,20 +1279,30 @@ function MyResumes() {
     <div className="tool-page">
       <div className="tool-header">
         <div>
-          <p className="eyebrow">MY RESUMES</p>
+          <p className="eyebrow">
+            MY RESUMES
+          </p>
 
-          <h1>Your resume collection</h1>
+          <h1>
+            Your resume collection
+          </h1>
 
           <p>
-            Keep track of your resumes and their ATS performance.
+            Keep track of your resumes and their
+            ATS performance.
           </p>
         </div>
       </div>
 
       <div className="resume-list">
         {resumes.map((resume) => (
-          <div className="resume-list-card" key={resume.name}>
-            <div className="document-icon">▤</div>
+          <div
+            className="resume-list-card"
+            key={resume.name}
+          >
+            <div className="document-icon">
+              ▤
+            </div>
 
             <div className="resume-details">
               <h3>{resume.name}</h3>
@@ -816,10 +1311,14 @@ function MyResumes() {
 
             <div className="resume-score">
               <span>ATS</span>
-              <strong>{resume.score}</strong>
+              <strong>
+                {resume.score}
+              </strong>
             </div>
 
-            <button className="outline-button">View →</button>
+            <button className="outline-button">
+              View →
+            </button>
           </div>
         ))}
       </div>
@@ -827,35 +1326,66 @@ function MyResumes() {
   );
 }
 
-/* ================================
+/* =====================================================
    SMALL COMPONENTS
-================================ */
+===================================================== */
 
-function Step({ number, text, active }) {
+function Step({
+  number,
+  text,
+  active,
+}) {
   return (
-    <div className={`step ${active ? "active" : ""}`}>
-      <div className="step-number">{number}</div>
+    <div
+      className={`step ${
+        active ? "active" : ""
+      }`}
+    >
+      <div className="step-number">
+        {number}
+      </div>
+
       <span>{text}</span>
     </div>
   );
 }
 
-function Input({ label, placeholder, type = "text" }) {
+function Input({
+  label,
+  placeholder,
+  type = "text",
+  value = "",
+  onChange,
+}) {
   return (
     <div className="input-group">
       <label>{label}</label>
 
-      <input type={type} placeholder={placeholder} />
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+      />
     </div>
   );
 }
 
-function TextArea({ label, placeholder }) {
+function TextArea({
+  label,
+  placeholder,
+  value = "",
+  onChange,
+}) {
   return (
     <div className="input-group">
       <label>{label}</label>
 
-      <textarea placeholder={placeholder}></textarea>
+      <textarea
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+      ></textarea>
     </div>
   );
 }
