@@ -3,4 +3,4 @@ uvicorn[standard]
 python-multipart
 python-dotenv
 pymupdf
-google-generativeaiuvicorn[standard]
+google-generativeai
